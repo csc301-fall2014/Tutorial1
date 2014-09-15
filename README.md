@@ -52,21 +52,21 @@ Let's stop for a second, and see what happened here:
  * A *repo* is a [graph of *commit objects*](http://git-scm.com/book/en/Git-Internals-Git-Objects).
  * A *commit object* is a snapshot of the codebase, with some extra metadata.
  * When we run `git commit`, a new commit object gets created and added to the graph.    
-   An edge is created from this new commit to "its parent" (i.e. The most recent commit before we ran `git commit`).
+   An edge is created from this new commit to its parent (i.e. The most recent commit before we ran `git commit`).
 
-Notice that, at this point, `a.txt` was committed to your **local repo** (i.e. "the clone").    
-Let's push our changes to the remote repository (the one that we cloned):
+At this point, `a.txt` is committed to your **local repo** (i.e. "the clone"), let's push our changes to the remote repository (i.e. "the origin"):
 
 ```
 git push origin master
 ```
 
 You're probably wondering what the `origin master` arguments are ...
- * `origin` - The name of the repo we're pushing out changes to.    
-   Git allows you to define *remotes*, a remote is a name that is associated with a URL of a remote repository.    
-   When you clone a repo, Git automatically creates the `origin` remote, and associates it with the URL of the repository that you cloned.
- * `master` - Which branch we're pushing the changes to.    
-   By default, a Git repo starts with a single branch, called `master`. More on that later ...
+ * `origin` - The name of the repo we're pushing our changes to.    
+   * Git allows you to define *remotes*, a remote is a name that is associated with a URL of a remote repository.    
+   * When you clone a repo, Git automatically creates the `origin` remote, and associates it with the URL of the repository that you cloned.
+ * `master` - Which branch (of the remote repository) we're pushing the changes to.    
+   By default, a Git repo starts with a single branch, called `master`.    
+   We'll talk more about branches soon.
 
 Notice that you can push changes to other repos, not just the one you cloned. Let's try that as follows:
  * *Fork* (i.e. clone on GitHub) the remote repo, using a different GitHub account.
@@ -79,16 +79,15 @@ Notice that you can push changes to other repos, not just the one you cloned. Le
  * We can clone a repo.
  * We can work with a local clone (i.e. commit changes).
  * When we are ready, we can push the changes to a remote repo.    
-   The remote repo doesn't have to be the one we originally cloned - As long as you have push permissions, and the changes that you are pushing "make sense to Git", you're good.    
-   If Git cannot safely push the changes, it will ask you to first pull the changes from the remote repo, resolve any conflicts, and only then it will allow you to push the changes back.
+   * The remote repo doesn't have to be the one we originally cloned - As long as you have push permissions, and the changes that you are pushing "make sense to Git", you're good.    
+   * If Git cannot safely push the changes, it will ask you to pull the changes from the remote repo, resolve any conflicts, commit your conflict resolution(s), and only then it will allow you to push the changes back.
 
 
 ## Branching
 
-So far, we've pushed changes between different repositories.    
-Branching is used to work on different features/changes in parallel on the same repo.
+So far, we've pushed changes between different repositories. That is, each repo was a single sequence of commit objects. Branching is used to work on different sequences in parallel (in a single same repo).
 
-Let's create a new branch (and switch to this branch)
+Let's create (and switch to) a new branch 
 
 ```
 git checkout -b feature1
@@ -119,7 +118,7 @@ ls
 ```
 ## Modifying files
 
-Let's modify `a.txt`
+Let's modify `a.txt` in the `feature1` branch
 
 ```
 echo "Modification 1" >> a.txt
@@ -127,12 +126,19 @@ git commit -m "Modifying a.txt in feature1 branch"
 ```
 
 Oops, Git complains that there is nothing to commit (and give us a hint).    
-The point is that Git doesn't assume that you want to commit modified files by default. For those of you who are used to SVN, this behaviour may seem a little odd. It will make sense soon.    
-We have two options now, we can either run `git add a.txt`, or we can run `git commit` with the `-a` option, which tells Git to add all modified files to this commit.
+Git doesn't assume you want to commit modified files by default. For those of you who are used to SVN, this behaviour may seem a little odd.    
+We have two options now, we can either run `git add a.txt`, or we can run `git commit` with the `-a` option, which tells Git to add all (tracked) modified files to this commit.
 
 ```
-git commit -a -m "Modifying a.txt"
+git commit -a -m "Modifying a.txt in feature1 branch"
 ```
+
+At this point `feature1` branch doesn't exist on the remote repo (origin), let's push it there
+
+```
+git push origin feature1
+```
+
 
 ## Merging & Resolving Conflicts
 
@@ -140,28 +146,30 @@ Next, let's switch back to the `master` branch, and make other modifications to 
 
 ```
 git checkout master
-echo "Modification 1" >> a.txt
+echo "Modification 2" >> a.txt
 git commit -m "Modifying a.txt in master"
 ```
 
-Now, let's try to merge `feature1` into `master`.
+Now, let's try to merge `feature1` into `master` (we need to be on the `master` branch in order to do that, which we are).
 
 ```
 git merge feature1
 ```
 
-Since there are conflicts, Git plays it safe - You will see a message asking you to resolve conflicts, and commit the changes.
+Since there are conflicts, Git "plays it safe" - You will see a message asking you to resolve conflicts, and commit the changes.
 
 
 ## The working directory, index and history
 
-This is a good time to dive a little deeper into how a Git repository works (and its terminology).    
+This is a good time to dive a little deeper into how a Git repository works (and its terminology).
+
 Each Git repo keeps tracks of three things:
  * *Working directory* (aka working tree) - The files on your local system, at their current state.
  * *Index* (aka *Staging Area*) - All the changes that will be committed with the next commit.
  * *History* - The graph of *commit objects* that were committed.
 
-Just to be clear - These 3 components are a part of a single repo. That is, they have nothing to do with a remote repo. A remote repo has its own working directory, index and history. When you push changes to a remote repo, you're updating that repo's history.
+Just to be clear - These 3 components are a part of a single repo, they have nothing to do with a remote repo.   
+A remote repo has its own working directory, index and history. When you push changes to a remote repo, you're updating that repo's history.
 
 Let's revisit the Git commands we've already used:
  * We *add* changes from the *working directory* to the *index*.
@@ -175,7 +183,7 @@ For more details, here is a [nice visual tutorial/guide](http://marklodato.githu
 ## Undoing Things
  
 There are multiple ways to undo things in Git - `revert` and `reset` are two different commands, the main difference between them is:
- * `revert` creates a new commit object in the graph
+ * `revert` creates a new commit object in the graph.
  * `reset` doesn't create new commit objects, it changes the `HEAD` pointer (and optionally changes the working directory and/or index).
 
 For this tutorial, we will only use `reset`.
@@ -183,19 +191,21 @@ For this tutorial, we will only use `reset`.
  * Use `git reset COMMIT-ID` to move `HEAD` to the specified commit, update the index, but not the working directory.
  * Use `git reset --hard COMMIT-ID` to move `HEAD` to the specified commit, and update both the index and working directory.
 
-Let's see an example:
+Let's see an example ...
 
 ```
 git log
 ```
 
-We can see the id of the most recent commit (i.e. the one pointed to by `HEAD`), we will use it when we run `git reset`.    
+With `git log` we can see the id's of all commit objects in the history. We will use the id of the most recent commit (i.e. `HEAD`) when we run `git reset`.
+
 Let's commit some changes
 
 ```
 touch c.txt
 git add c.txt
 git commit c.txt
+git status
 ```
 
 Let's start with
@@ -205,8 +215,8 @@ git reset --soft COMMIT-ID
 git status
 ```
 
-At this point, `HEAD` points to the most recent commit, before we added `c.txt`.    
-Notice that the index did not change. That is, `c.txt` is staged, and ready to be committed.
+At this point, `HEAD` points to the most recent commit before `c.txt` was added.    
+Notice that the index/staging-area did not change. That is, `c.txt` is staged, and ready to be committed.
 
 ```
 git commit -m "Committing changes after a soft reset"
@@ -220,8 +230,9 @@ git reset COMMIT-ID
 git status
 ```
 
-This time, the index changed as well. That is, `c.txt` is not staged. If we run `git commit` at this point, Git will complain that there is nothing to be committed.    
-Let's add `c.txt` to the index, and commit it.
+This time, the index changed as well, and `c.txt` is no longer staged.    
+If we run `git commit` at this point, Git will complain that there is nothing to be committed.    
+Let's add `c.txt` to the index again, and commit it.
 
 ```
 git add c.txt
@@ -236,7 +247,7 @@ git status
 ls
 ```
 
-This time, not only both the `HEAD` and the index were updated, but also our working directory. That is, `c.txt` is gone.
+This time, `HEAD`, the index and the working directory were all updated. When we run `ls`, we see that `c.txt` is gone.
 
 
 ## Summary
