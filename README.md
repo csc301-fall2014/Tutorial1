@@ -1,4 +1,4 @@
-# Tutorial1
+# CSC301 - Tutorial 1, using Git & GitHub
 
 Let's go through a short session of using Git.
 We will talk about the internals of Git, and its terminology as we go along.
