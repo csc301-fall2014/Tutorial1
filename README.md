@@ -166,11 +166,87 @@ Let's revisit the Git commands we've already used:
  * We *add* changes from the *working directory* to the *index*.
  * We *commit* changes from the *index* to the *history*.
  * A *branch* is simply a pointer to a commit object in the history (i.e. a pointer to a node in the graph).
+ * `HEAD` is a pointer to (the most recent commit of) the current branch.
+
+For more details, here is a [nice visual tutorial/guide](http://marklodato.github.io/visual-git-guide/index-en.html).
 
 
 ## Undoing Things
  
+There are multiple ways to undo things in Git - `revert` and `reset` are two different commands, the main difference between them is:
+ * `revert` creates a new commit object in the graph
+ * `reset` doesn't create new commit objects, it changes the `HEAD` pointer (and optionally changes the working directory and/or index).
+
+For this tutorial, we will only use `reset`.
+ * Use `git reset --soft COMMIT-ID` to move `HEAD` to the specified commit, without changing the index or the working directory.
+ * Use `git reset COMMIT-ID` to move `HEAD` to the specified commit, update the index, but not the working directory.
+ * Use `git reset --hard COMMIT-ID` to move `HEAD` to the specified commit, and update both the index and working directory.
+
+Let's see an example:
+
+```
+git log
+```
+
+We can see the id of the most recent commit (i.e. the one pointed to by `HEAD`), we will use it when we run `git reset`.    
+Let's commit some changes
+
+```
+touch c.txt
+git add c.txt
+git commit c.txt
+```
+
+Let's start with
+
+```
+git reset --soft COMMIT-ID
+git status
+```
+
+At this point, `HEAD` points to the most recent commit, before we added `c.txt`.    
+Notice that the index did not change. That is, `c.txt` is staged, and ready to be committed.
+
+```
+git commit -m "Committing changes after a soft reset"
+git status
+```
+
+Now, let's try the default `reset` behaviour.
+
+```
+git reset COMMIT-ID
+git status
+```
+
+This time, the index changed as well. That is, `c.txt` is not staged. If we run `git commit` at this point, Git will complain that there is nothing to be committed.    
+Let's add `c.txt` to the index, and commit it.
+
+```
+git add c.txt
+git commit -m "Adding c.txt again"
+```
+
+Now, let's try a hard reset.
+
+```
+git reset --hard COMMIT-ID
+git status
+ls
+```
+
+This time, not only both the `HEAD` and the index were updated, but also our working directory. That is, `c.txt` is gone.
 
 
+## Summary
 
-
+ * Git's model is a little more complex than SVN. A single repository keeps track of 3 things
+   * Working directory
+   * Index
+   * History
+ * `git add` submits changes from the working directory to the index.
+ * `git commit` submits changes from the index to the history.
+ * `git commit -a` add alls modified files from the working directory to the index, and commits them to the history.
+ * `git reset --soft` is used to undo changes in the history (but not the index or the working directory).
+ * `git reset` is used to undo changes in the history and the index (but not the working directory).
+ * `git reset --hard` is used to undo changes in the history, index and working directory.
