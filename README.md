@@ -50,7 +50,7 @@ git status
 ```
 
 Let's stop for a second, and see what happened here:
- * A *repo* is a graph of *commit objects*.
+ * A *repo* is a [graph of *commit objects*](http://git-scm.com/book/en/Git-Internals-Git-Objects).
  * A *commit object* is just a snapshot of the codebase, with some metadata (timestamp, who committed it, etc.)
  * When we run `git commit`, a new commit object is gets created and added to the graph.    
    An edge is created from the new commit to "its parent" (i.e. The most recent commit before we ran `git commit`).
@@ -124,7 +124,7 @@ Let's modify `a.txt`
 
 ```
 echo "Modification 1" >> a.txt
-git commit
+git commit -m "Modifying a.txt in feature1 branch"
 ```
 
 Oops, Git complains that there is nothing to commit (and give us a hint).    
@@ -135,6 +135,42 @@ We have two options now, we can either run `git add a.txt`, or we can run `git c
 git commit -a -m "Modifying a.txt"
 ```
 
-## Resolving Conflicts
+## Merging & Resolving Conflicts
 
-Next, let's switch to the `feature1` branch, and make other modifications to `a.txt`
+Next, let's switch back to the `master` branch, and make other modifications to `a.txt`
+
+```
+git checkout master
+echo "Modification 1" >> a.txt
+git commit -m "Modifying a.txt in master"
+```
+
+Now, let's try to merge `feature1` into `master`.
+
+```
+git merge feature1
+```
+
+Since there are conflicts, Git plays it safe - You will see a message asking you to resolve conflicts, and commit the changes.
+
+
+## The working directory, index and history
+
+This is a good time to dive a little deeper into how a Git repository works (and its terminology).    
+Each Git repo keeps tracks of three things:
+ * *Working directory* (aka working tree) - The files on your local system, at their current state.
+ * *Index* (aka *Staging Area*) - All the changes that will be committed with the next commit.
+ * *History* - The graph of *commit objects* that were committed.
+
+Let's revisit the Git commands we've already used:
+ * We *add* changes from the *working directory* to the *index*.
+ * We *commit* changes from the *index* to the *history*.
+ * A *branch* is simply a pointer to a commit object in the history (i.e. a pointer to a node in the graph).
+
+
+## Undoing Things
+ 
+
+
+
+
