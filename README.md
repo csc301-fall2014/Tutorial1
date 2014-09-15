@@ -36,8 +36,7 @@ Check the status of your repo, and see what's different
 git status
 ```
 
-Now, git knows that we are interested in including `a.txt` in our next commit.    
-Let's commit the file (to the *history*)
+Now that Git knows that we are interested in including `a.txt` in our next commit, let's commit the file (to the *history*)
 
 ```
 git commit -m "Adding a.txt"
@@ -51,9 +50,9 @@ git status
 
 Let's stop for a second, and see what happened here:
  * A *repo* is a [graph of *commit objects*](http://git-scm.com/book/en/Git-Internals-Git-Objects).
- * A *commit object* is just a snapshot of the codebase, with some metadata (timestamp, who committed it, etc.)
- * When we run `git commit`, a new commit object is gets created and added to the graph.    
-   An edge is created from the new commit to "its parent" (i.e. The most recent commit before we ran `git commit`).
+ * A *commit object* is a snapshot of the codebase, with some extra metadata.
+ * When we run `git commit`, a new commit object gets created and added to the graph.    
+   An edge is created from this new commit to "its parent" (i.e. The most recent commit before we ran `git commit`).
 
 Notice that, at this point, `a.txt` was committed to your **local repo** (i.e. "the clone").    
 Let's push our changes to the remote repository (the one that we cloned):
@@ -162,6 +161,8 @@ Each Git repo keeps tracks of three things:
  * *Index* (aka *Staging Area*) - All the changes that will be committed with the next commit.
  * *History* - The graph of *commit objects* that were committed.
 
+Just to be clear - These 3 components are a part of a single repo. That is, they have nothing to do with a remote repo. A remote repo has its own working directory, index and history. When you push changes to a remote repo, you're updating that repo's history.
+
 Let's revisit the Git commands we've already used:
  * We *add* changes from the *working directory* to the *index*.
  * We *commit* changes from the *index* to the *history*.
@@ -250,3 +251,39 @@ This time, not only both the `HEAD` and the index were updated, but also our wor
  * `git reset --soft` is used to undo changes in the history (but not the index or the working directory).
  * `git reset` is used to undo changes in the history and the index (but not the working directory).
  * `git reset --hard` is used to undo changes in the history, index and working directory.
+
+
+OK, that's enough Git for now, let's quickly mention two useful GitHub features.
+
+## Markdown
+
+Markdown is a convenient Wiki-like language. That is, you write text, and GitHub formats it nicely.    
+The page you're reading right now was written using Markdown.
+
+Quick example:
+
+```
+ * A List item
+ * Another list item
+```
+
+The text above will be displayed as 
+
+ * A List item
+ * Another list item
+
+GitHub uses its own modified Markdown syntax. You can/should [learn more about GitHub's Markdown](https://help.github.com/articles/github-flavored-markdown).
+
+Side note: If your repository contains a file called `README.md`, GitHub will display the content of this file (formatted nicely) in the repo's homepage on GitHub.
+
+
+## Issue Management
+
+GitHub has a convenient, and fairly simple issue/ticket management system. Some of its key features are:
+ * Issues are either opened or closed.
+ * You can define custom labels, and attach any number of labels to a ticket.
+ * You can use Markdown in the ticket body/description.
+ * You can assign tickets to users.
+
+ 
+
